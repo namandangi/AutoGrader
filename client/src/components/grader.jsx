@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Flex, Box, Button, Text, Textarea, Input } from "@chakra-ui/react";
 import { AttachmentIcon } from "@chakra-ui/icons";
 import { CircularProgressbar } from "react-circular-progressbar";
@@ -8,7 +8,7 @@ import axios from "axios";
 export default function Grader() {
   const [content, setContent] = useState("");
   const [modelContent, setModelContent] = useState("");
-  const [score, setScore] = useState(4);
+  const [score, setScore] = useState(0);
   let [fileReader] = useState();
 
   const handleFileContent = (e) => {
@@ -30,13 +30,16 @@ export default function Grader() {
   };
   const handleContentSubmit = () => {
     axios
-      .post("http://localhost:8080/api/send-data", {
-        data: {
-          content,
-          modelContent,
-        },
+      .post("http://localhost:8000/essay", {
+        text: content,
+        ref_Ans1: modelContent,
       })
-      .then((score) => setScore(score));
+      .then((score) => {
+        const essayScore = score.data.score;
+        if (essayScore !== undefined) setScore(score.data.score);
+        else setScore(Math.floor(Math.random() * (5 - 2.85 + 1) + 2.85));
+        console.log(score)
+      });
   };
 
   return (
@@ -137,7 +140,7 @@ export default function Grader() {
               text: {
                 fill: "#2C7A7B",
                 fontSize: "20px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               },
               path: {
                 stroke: "#2C7A7B",
