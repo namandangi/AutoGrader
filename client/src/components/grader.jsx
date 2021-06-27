@@ -7,7 +7,8 @@ import axios from "axios";
 
 export default function Grader() {
   const [content, setContent] = useState("");
-  const [score, setScore] = useState(69);
+  const [modelContent, setModelContent] = useState("");
+  const [score, setScore] = useState(4);
   let [fileReader] = useState();
 
   const handleFileContent = (e) => {
@@ -23,19 +24,26 @@ export default function Grader() {
     const inputVal = e.target.value;
     setContent(inputVal);
   };
+  const handleModelInputChange = (e) => {
+    const inputVal = e.target.value;
+    setModelContent(inputVal);
+  };
   const handleContentSubmit = () => {
     axios
       .post("http://localhost:8080/api/send-data", {
-        data: content,
+        data: {
+          content,
+          modelContent,
+        },
       })
       .then((score) => setScore(score));
   };
 
   return (
-    <Flex>
+    <Flex justifyContent="center">
       <Flex direction="column" margin="2%">
         <Text fontSize="4xl" fontWeight="bold">
-          TYPE IN YOUR ESSAY
+          ENTER THE MODEL ANSWER
         </Text>
         <Box padding="2%" width="100%">
           <Textarea
@@ -43,16 +51,36 @@ export default function Grader() {
             borderRadius="0.375rem"
             padding="2%"
             variant="unstyled"
-            isFullWidth="true"
             minW="700px"
-            minH="600px"
+            minH="350px"
+            width="100%"
+            value={modelContent}
+            onChange={handleModelInputChange}
+          ></Textarea>
+        </Box>
+        <Text fontSize="4xl" fontWeight="bold">
+          ENTER THE STUDENT'S ANSWER
+        </Text>
+        <Box padding="2%" width="100%">
+          <Textarea
+            border="gray solid 2px"
+            borderRadius="0.375rem"
+            padding="2%"
+            variant="unstyled"
+            minW="700px"
+            minH="350px"
             width="100%"
             value={content}
             onChange={handleInputChange}
           ></Textarea>
         </Box>
       </Flex>
-      <Flex direction="column" margin="5% 2%">
+      <Flex
+        direction="column"
+        margin="5% 2% 0% 2%"
+        justifyContent="center"
+        alignItems="center"
+      >
         <Flex
           direction="column"
           border="gray solid 2px"
@@ -79,7 +107,12 @@ export default function Grader() {
             </Text>
           </label>
         </Flex>
-        <Button size="lg" colorScheme="teal" onClick={handleContentSubmit} onSubmit={handleContentSubmit}>
+        <Button
+          size="lg"
+          colorScheme="teal"
+          onClick={handleContentSubmit}
+          onSubmit={handleContentSubmit}
+        >
           SUBMIT FOR GRADING
         </Button>
         <Flex
@@ -93,7 +126,8 @@ export default function Grader() {
         >
           <CircularProgressbar
             value={score}
-            text={`${score}/100`}
+            text={`${score}/5`}
+            maxValue={5}
             strokeWidth={5}
             styles={{
               root: {
@@ -102,7 +136,8 @@ export default function Grader() {
               },
               text: {
                 fill: "#2C7A7B",
-                fontSize: "18px",
+                fontSize: "20px",
+                fontWeight: "bold"
               },
               path: {
                 stroke: "#2C7A7B",
